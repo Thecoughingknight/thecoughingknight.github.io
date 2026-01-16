@@ -228,16 +228,68 @@ html { font-size:16px; }
 </footer>
 
 <script>
-// Search filter
-const search = document.getElementById('search');
-const cards = document.querySelectorAll('.game-card');
-search.addEventListener('input',()=>{
-  const value=search.value.toLowerCase();
-  cards.forEach(card=>{
-    card.style.display = card.innerText.toLowerCase().includes(value) ? 'block' : 'none';
+// -----------------------------
+// Load Latest Games from JSON
+// -----------------------------
+async function loadLatestGames() {
+  const res = await fetch("games.json");
+  const games = await res.json();
+
+  const grid = document.querySelector(".games-grid");
+  grid.innerHTML = "";
+
+  // Sort newest → oldest
+  games.sort((a, b) => new Date(b.added) - new Date(a.added));
+
+  // Show only the latest 4
+  const latest = games.slice(0, 4);
+
+  latest.forEach(game => {
+    grid.innerHTML += `
+      <a class="game-link" href="${game.page}">
+        <article class="game-card">
+          <span class="badge new">NEW</span>
+          <div class="game-thumbnail">
+            <img src="${game.thumbnail}">
+            <div class="overlay">
+              <p>${game.description}</p>
+              <button>▶ Play</button>
+            </div>
+          </div>
+          <div class="game-title">${game.title}</div>
+          <div class="game-meta">${game.genre} • ${game.year}</div>
+        </article>
+      </a>
+    `;
   });
-});
+
+  // Re‑initialize search after cards load
+  initSearch();
+}
+
+loadLatestGames();
+
+
+// -----------------------------
+// Search Filter (works with JSON-loaded cards)
+// -----------------------------
+function initSearch() {
+  const search = document.getElementById('search');
+  const cards = document.querySelectorAll('.game-card');
+
+  search.addEventListener('input', () => {
+    const value = search.value.toLowerCase();
+
+    cards.forEach(card => {
+      card.style.display =
+        card.innerText.toLowerCase().includes(value)
+          ? 'block'
+          : 'none';
+    });
+  });
+}
 </script>
+
 
 </body>
 </html>
