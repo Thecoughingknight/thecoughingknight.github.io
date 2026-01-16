@@ -114,21 +114,29 @@
 
     .badge.new { box-shadow: 0 0 8px white; }
 
-    .game-thumbnail {
-      height: 90px;
-      border: var(--border);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-bottom: 8px;
-      position: relative;
-    }
+    /* Default cards */
+.game-thumbnail {
+  height: 90px;
+  border: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  position: relative;
+}
 
-    .game-thumbnail img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.35s ease;
-    }
+/* Featured card thumbnail */
+.featured .game-thumbnail {
+  height: auto;
+  aspect-ratio: 16 / 6; /* wide banner */
+}
+
+/* Safety: ensure no stretching */
+.game-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 
     .game-card:hover img { transform: scale(1.18); }
 
