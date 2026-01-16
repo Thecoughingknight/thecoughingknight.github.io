@@ -1,1 +1,12 @@
-
+[
+  {
+    "id": "fnaf1",
+    "title": "FNAF 1",
+    "thumbnail": "https://i.imgur.com/A69XUv5.png",
+    "genre": "Horror",
+    "year": 2014,
+    "description": "Survive five nights at Freddy Fazbear’s Pizza.",
+    "page": "games/fnaf-1.html",
+    "added": "2026-01-16"
+  }
+]
