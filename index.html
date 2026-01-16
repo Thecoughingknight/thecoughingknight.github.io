@@ -7,6 +7,7 @@
 <link rel="icon" href="favicon.ico">
 
 <style>
+/* DEFAULT THEME */
 :root {
   --bg:#000;
   --fg:#fff;
@@ -15,6 +16,15 @@
   --radius:6px;
   --glow:0 0 18px rgba(255,255,255,0.45);
   --font:Arial,sans-serif;
+}
+
+/* 🌟 NEON THEME */
+[data-theme="neon"] {
+  --bg:#000;
+  --fg:#00ff9d;
+  --muted:#00c77a;
+  --border:1px solid #00ff9d;
+  --glow:0 0 18px rgba(0,255,157,0.7);
 }
 
 * { box-sizing:border-box; margin:0; padding:0; font-family:var(--font); }
@@ -40,176 +50,91 @@ body { background:var(--bg); color:var(--fg); }
   width: 260px;
 }
 
-.lock-box h1 {
-  font-size: 1.2rem;
-  margin-bottom: 15px;
-}
+.lock-box h1 { font-size: 1.2rem; margin-bottom: 15px; }
 
 #code-input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  border: var(--border);
-  background: black;
-  color: white;
-  text-align: center;
-  font-size: 1.1rem;
-  margin-bottom: 12px;
+  width: 100%; padding: 10px; border-radius: 6px;
+  border: var(--border); background: black; color: white;
+  text-align: center; font-size: 1.1rem; margin-bottom: 12px;
 }
 
 #unlock-btn {
-  width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  border: var(--border);
-  background: white;
-  color: black;
-  cursor: pointer;
-  font-weight: bold;
+  width: 100%; padding: 10px; border-radius: 6px;
+  border: var(--border); background: white; color: black;
+  cursor: pointer; font-weight: bold;
 }
 
-#unlock-btn:hover {
-  background: #ddd;
-}
-
-#error-msg {
-  color: red;
-  margin-top: 10px;
-  height: 18px;
-}
+#unlock-btn:hover { background: #ddd; }
+#error-msg { color: red; margin-top: 10px; height: 18px; }
 
 /* Top Bar */
 header { border-bottom:var(--border); }
 .topbar {
-  max-width:1200px;
-  margin:auto;
-  padding:12px 16px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
+  max-width:1200px; margin:auto; padding:12px 16px;
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
 }
 .logo { font-size:1.3rem; font-weight:bold; }
 .nav-links { display:flex; gap:12px; }
 .nav-links a {
-  color:var(--fg);
-  text-decoration:none;
-  border:var(--border);
-  padding:5px 12px;
-  border-radius:20px;
-  transition:0.2s ease;
+  color:var(--fg); text-decoration:none; border:var(--border);
+  padding:5px 12px; border-radius:20px; transition:0.2s ease;
 }
-.nav-links a:hover {
-  background:var(--fg);
-  color:var(--bg);
-  transform:scale(1.05);
-}
+.nav-links a:hover { background:var(--fg); color:var(--bg); transform:scale(1.05); }
 
 /* Layout */
-main {
-  max-width:1200px;
-  margin:40px auto;
-  padding:0 16px;
-}
-.section {
-  border:var(--border);
-  border-radius:var(--radius);
-  padding:16px;
-}
-.section h2 {
-  font-size:1.2rem;
-  border-bottom:var(--border);
-  padding-bottom:6px;
-  margin-bottom:12px;
-}
+main { max-width:1200px; margin:40px auto; padding:0 16px; }
+.section { border:var(--border); border-radius:var(--radius); padding:16px; }
+.section h2 { border-bottom:var(--border); padding-bottom:6px; margin-bottom:12px; }
 
 /* Search */
 .search {
-  width:100%;
-  margin-bottom:12px;
-  padding:8px 12px;
-  border-radius:20px;
-  border:var(--border);
-  background:black;
-  color:white;
+  width:100%; margin-bottom:12px; padding:8px 12px;
+  border-radius:20px; border:var(--border); background:black; color:white;
 }
 
 /* Game Grid */
 .games-grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));
   gap:16px;
 }
 
 .game-link { text-decoration:none; color:inherit; }
 
 .game-card {
-  border:var(--border);
-  border-radius:var(--radius);
-  padding:10px;
-  transition:0.25s ease;
-  position:relative;
+  border:var(--border); border-radius:var(--radius);
+  padding:10px; transition:0.25s ease; position:relative;
 }
-.game-card:hover {
-  transform:scale(1.06);
-  box-shadow:var(--glow);
-}
+.game-card:hover { transform:scale(1.06); box-shadow:var(--glow); }
 
 /* Square thumbnails */
 .game-thumbnail {
-  width:100%;
-  aspect-ratio:1/1;
-  border:var(--border);
-  border-radius:4px;
-  overflow:hidden;
-  margin-bottom:8px;
-  position:relative;
+  width:100%; aspect-ratio:1/1; border:var(--border);
+  border-radius:4px; overflow:hidden; margin-bottom:8px; position:relative;
 }
 
 .game-thumbnail img {
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  transition:transform 0.2s ease;
+  width:100%; height:100%; object-fit:cover; transition:transform 0.2s ease;
 }
 .game-card:hover img { transform:scale(1.18); }
 
 /* Hover overlay */
 .overlay {
-  position:absolute;
-  inset:0;
-  background:rgba(0,0,0,0.85);
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  gap:8px;
-  opacity:0;
-  transition:opacity 0.2s ease;
-  text-align:center;
-  padding:8px;
+  position:absolute; inset:0; background:rgba(0,0,0,0.85);
+  display:flex; flex-direction:column; justify-content:center;
+  align-items:center; gap:8px; opacity:0; transition:opacity 0.2s ease;
+  text-align:center; padding:8px;
 }
 .game-card:hover .overlay { opacity:1; }
 
 .overlay button {
-  background:black;
-  color:white;
-  border:var(--border);
-  padding:6px 14px;
-  border-radius:20px;
-  cursor:pointer;
+  background:black; color:white; border:var(--border);
+  padding:6px 14px; border-radius:20px; cursor:pointer;
 }
 
 .badge {
-  position:absolute;
-  top:6px;
-  right:6px;
-  font-size:0.6rem;
-  border:var(--border);
-  padding:2px 6px;
-  border-radius:10px;
-  background:black;
-  box-shadow:0 0 8px white;
+  position:absolute; top:6px; right:6px; font-size:0.6rem;
+  border:var(--border); padding:2px 6px; border-radius:10px;
+  background:black; box-shadow:0 0 8px var(--fg);
 }
 
 .game-title { font-size:0.95rem; }
@@ -217,12 +142,8 @@ main {
 
 /* Footer */
 footer {
-  max-width:1200px;
-  margin:40px auto;
-  padding:20px;
-  border-top:var(--border);
-  text-align:center;
-  font-size:0.8rem;
+  max-width:1200px; margin:40px auto; padding:20px;
+  border-top:var(--border); text-align:center; font-size:0.8rem;
 }
 </style>
 </head>
@@ -251,20 +172,14 @@ footer {
 </header>
 
 <main>
-
   <section class="section">
     <h2>Latest Games</h2>
-
     <input class="search" id="search" placeholder="Search games...">
-
     <div class="games-grid"></div>
   </section>
-
 </main>
 
-<footer>
-  © 2026 The Roaring Web
-</footer>
+<footer>© 2026 The Roaring Web</footer>
 
 <script>
 // -----------------------------
@@ -344,6 +259,14 @@ function checkCode() {
     error.textContent = "Incorrect code";
     input.value = "";
   }
+}
+
+// -----------------------------
+// 🌈 Apply Saved Theme
+// -----------------------------
+const savedTheme = localStorage.getItem("theme");
+if (savedTheme) {
+  document.documentElement.setAttribute("data-theme", savedTheme);
 }
 </script>
 
