@@ -1,1 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Settings – The Roaring Web</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<style>
+body { background:black; color:white; font-family:Arial; }
+main { max-width:600px; margin:40px auto; padding:20px; border:1px solid white; }
+label { display:flex; justify-content:space-between; margin:12px 0; }
+</style>
+</head>
+
+<body>
+
+<main>
+  <h2>Settings</h2>
+
+  <label>
+    Disable Glow Effects
+    <input type="checkbox" id="glow">
+  </label>
+
+  <label>
+    Reduce Animations
+    <input type="checkbox" id="motion">
+  </label>
+
+</main>
+
+<script>
+const glow = document.getElementById("glow");
+const motion = document.getElementById("motion");
+
+glow.checked = localStorage.getItem("noGlow") === "true";
+motion.checked = localStorage.getItem("reduceMotion") === "true";
+
+glow.onchange = () => localStorage.setItem("noGlow", glow.checked);
+motion.onchange = () => localStorage.setItem("reduceMotion", motion.checked);
+</script>
+
+</body>
+</html>
