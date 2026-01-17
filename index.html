@@ -18,15 +18,6 @@
 * { box-sizing:border-box; margin:0; padding:0; font-family:var(--font); }
 body { background:var(--bg); color:var(--fg); }
 
-/* Lock Screen */
-#lock-screen { position:fixed; inset:0; background:black; display:flex; justify-content:center; align-items:center; z-index:99999; }
-.lock-box { text-align:center; border:var(--border); padding:30px; border-radius:var(--radius); background:#111; width:260px; }
-.lock-box h1 { font-size:1.2rem; margin-bottom:15px; }
-#code-input { width:100%; padding:10px; border-radius:6px; border:var(--border); background:black; color:white; text-align:center; font-size:1.1rem; margin-bottom:12px; }
-#unlock-btn { width:100%; padding:10px; border-radius:6px; border:var(--border); background:white; color:black; cursor:pointer; font-weight:bold; }
-#unlock-btn:hover { background:#ddd; }
-#error-msg { color:red; margin-top:10px; height:18px; }
-
 /* Layout */
 header { border-bottom:var(--border); }
 .topbar { max-width:1200px; margin:auto; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px; }
@@ -36,23 +27,22 @@ header { border-bottom:var(--border); }
 .nav-links a:hover { background:var(--fg); color:var(--bg); transform:scale(1.05); }
 
 main { max-width:1200px; margin:40px auto; padding:0 16px; }
-.section { border:var(--border); border-radius:var(--radius); padding:16px; }
+.section { border:var(--border); border-radius:var(--radius); padding:16px; margin-bottom:40px; }
 .section h2 { border-bottom:var(--border); padding-bottom:6px; margin-bottom:12px; }
 
-/* Game Grid & Search */
+/* Categories */
+.categories { display:flex; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+.categories button { border:var(--border); background:black; color:white; padding:6px 12px; border-radius:20px; cursor:pointer; transition:0.2s ease; }
+.categories button:hover, .categories button.active { background:var(--fg); color:var(--bg); }
+
+/* Game Grid */
 .search { width:100%; margin-bottom:12px; padding:8px 12px; border-radius:20px; border:var(--border); background:black; color:white; }
 .games-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:16px; }
 
 .game-link { text-decoration:none; color:inherit; }
 .game-card { 
-  border:var(--border); 
-  border-radius:var(--radius); 
-  padding:10px; 
-  transition:0.25s ease; 
-  position: relative; /* fix badge positioning */
-  overflow: hidden; 
-  display: flex; 
-  flex-direction: column;
+  border:var(--border); border-radius:var(--radius); padding:10px; transition:0.25s ease; 
+  position: relative; overflow:hidden; display:flex; flex-direction:column;
 }
 .game-card:hover { transform:scale(1.06); box-shadow:var(--glow); }
 
@@ -64,18 +54,7 @@ main { max-width:1200px; margin:40px auto; padding:0 16px; }
 .game-card:hover .overlay { opacity:1; }
 .overlay button { background:black; color:white; border:var(--border); padding:6px 14px; border-radius:20px; cursor:pointer; }
 
-.badge { 
-  position:absolute; 
-  top:10px; 
-  right:10px; 
-  font-size:0.65rem; 
-  border:var(--border); 
-  padding:2px 6px; 
-  border-radius:10px; 
-  background:black; 
-  box-shadow:0 0 8px var(--fg); 
-  z-index:10; /* ensure it’s on top */
-}
+.badge { position:absolute; top:10px; right:10px; font-size:0.65rem; border:var(--border); padding:2px 6px; border-radius:10px; background:black; box-shadow:0 0 8px var(--fg); z-index:10; }
 
 .game-title { font-size:0.95rem; }
 .game-meta { font-size:0.75rem; color:var(--muted); }
@@ -84,15 +63,6 @@ footer { max-width:1200px; margin:40px auto; padding:20px; border-top:var(--bord
 </style>
 </head>
 <body>
-
-<div id="lock-screen">
-  <div class="lock-box">
-    <h1>Enter Access Code</h1>
-    <input id="code-input" type="password" maxlength="4" placeholder="••••">
-    <button id="unlock-btn">Unlock</button>
-    <p id="error-msg"></p>
-  </div>
-</div>
 
 <header>
   <div class="topbar">
@@ -107,52 +77,114 @@ footer { max-width:1200px; margin:40px auto; padding:20px; border-top:var(--bord
 </header>
 
 <main>
+
+  <!-- CATEGORIES -->
+  <section class="section">
+    <h2>Categories</h2>
+    <div class="categories"></div>
+  </section>
+
+  <!-- TOP GAMES -->
+  <section class="section">
+    <h2>Top Games</h2>
+    <div class="games-grid" id="top-games"></div>
+  </section>
+
+  <!-- LATEST GAMES -->
   <section class="section">
     <h2>Latest Games</h2>
     <input class="search" id="search" placeholder="Search games...">
-    <div class="games-grid"></div>
+    <div class="games-grid" id="latest-games"></div>
   </section>
+
 </main>
 
 <footer>© 2026 The Roaring Web</footer>
 
 <script>
-// 1. THEME
+// THEME
 const savedTheme = localStorage.getItem("theme");
 if (savedTheme) document.documentElement.setAttribute("data-theme", savedTheme);
 
-// 2. LOAD GAMES
-async function loadLatestGames() {
-  const res = await fetch("games.json");
-  const games = await res.json();
-  const grid = document.querySelector(".games-grid");
+// LOAD GAMES AND PLAYS
+let games = [];
+let plays = {};
+
+async function loadGames() {
+  const resGames = await fetch("games.json");
+  games = await resGames.json();
+
+  const resPlays = await fetch("plays.json"); // separate JSON for play counts
+  plays = await resPlays.json();
+
+  displayCategories();
+  displayTopGames();
+  displayLatestGames();
+}
+
+// DISPLAY CATEGORIES
+function displayCategories() {
+  const container = document.querySelector(".categories");
+  const uniqueCategories = [...new Set(games.map(g => g.genre))];
+  container.innerHTML = "";
+  uniqueCategories.forEach(cat => {
+    const btn = document.createElement("button");
+    btn.textContent = cat;
+    btn.addEventListener("click", () => filterByCategory(cat, btn));
+    container.appendChild(btn);
+  });
+}
+
+// CATEGORY FILTER
+function filterByCategory(category, btn) {
+  document.querySelectorAll(".categories button").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  displayLatestGames(category);
+}
+
+// DISPLAY TOP GAMES
+function displayTopGames() {
+  const grid = document.getElementById("top-games");
   grid.innerHTML = "";
+  // sort by plays
+  const sorted = [...games].sort((a,b) => (plays[b.id]||0) - (plays[a.id]||0));
+  sorted.slice(0,4).forEach(game => {
+    grid.innerHTML += renderGameCard(game);
+  });
+}
 
-  games.sort((a, b) => new Date(b.added) - new Date(a.added));
-
-  games.slice(0, 4).forEach(game => {
-    grid.innerHTML += `
-      <a class="game-link" href="${game.page}">
-        <article class="game-card">
-          <span class="badge new">NEW</span>
-          <div class="game-thumbnail">
-            <img src="${game.thumbnail}">
-            <div class="overlay"><p>${game.description}</p><button>▶ Play</button></div>
-          </div>
-          <div class="game-title">${game.title}</div>
-          <div class="game-meta">${game.genre} • ${game.year}</div>
-        </article>
-      </a>`;
+// DISPLAY LATEST GAMES (optional category filter)
+function displayLatestGames(category=null) {
+  const grid = document.getElementById("latest-games");
+  grid.innerHTML = "";
+  let list = [...games].sort((a,b) => new Date(b.added) - new Date(a.added));
+  if(category) list = list.filter(g => g.genre === category);
+  list.forEach(game => {
+    grid.innerHTML += renderGameCard(game);
   });
   initSearch();
 }
-loadLatestGames();
 
-// 3. SEARCH
+// RENDER GAME CARD
+function renderGameCard(game) {
+  return `
+    <a class="game-link" href="${game.page}">
+      <article class="game-card">
+        ${game.isNew ? `<span class="badge new">NEW</span>` : ""}
+        <div class="game-thumbnail">
+          <img src="${game.thumbnail}">
+          <div class="overlay"><p>${game.description}</p><button>▶ Play</button></div>
+        </div>
+        <div class="game-title">${game.title}</div>
+        <div class="game-meta">${game.genre} • ${game.year}</div>
+      </article>
+    </a>`;
+}
+
+// SEARCH
 function initSearch() {
   const search = document.getElementById('search');
-  const cards = document.querySelectorAll('.game-card');
-  
+  const cards = document.querySelectorAll('#latest-games .game-card');
   search.addEventListener('input', () => {
     const value = search.value.toLowerCase();
     cards.forEach(card => {
@@ -161,19 +193,8 @@ function initSearch() {
   });
 }
 
-// 4. LOCK SCREEN
-const lockScreen = document.getElementById("lock-screen");
-const input = document.getElementById("code-input");
-const btn = document.getElementById("unlock-btn");
-const error = document.getElementById("error-msg");
-
-btn.addEventListener("click", checkCode);
-input.addEventListener("keypress", (e) => { if (e.key === "Enter") checkCode(); });
-
-function checkCode() {
-  if (input.value === "1997") { lockScreen.style.display = "none"; } 
-  else { error.textContent = "Incorrect code"; input.value = ""; }
-}
+// INITIAL LOAD
+loadGames();
 </script>
 </body>
 </html>
