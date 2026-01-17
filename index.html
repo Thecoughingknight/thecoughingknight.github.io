@@ -42,18 +42,44 @@ main { max-width:1200px; margin:40px auto; padding:0 16px; }
 /* Game Grid & Search */
 .search { width:100%; margin-bottom:12px; padding:8px 12px; border-radius:20px; border:var(--border); background:black; color:white; }
 .games-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:16px; }
+
 .game-link { text-decoration:none; color:inherit; }
-.game-card { border:var(--border); border-radius:var(--radius); padding:10px; transition:0.25s ease; position:relative; }
+.game-card { 
+  border:var(--border); 
+  border-radius:var(--radius); 
+  padding:10px; 
+  transition:0.25s ease; 
+  position: relative; /* fix badge positioning */
+  overflow: hidden; 
+  display: flex; 
+  flex-direction: column;
+}
 .game-card:hover { transform:scale(1.06); box-shadow:var(--glow); }
+
 .game-thumbnail { width:100%; aspect-ratio:1/1; border:var(--border); border-radius:4px; overflow:hidden; margin-bottom:8px; position:relative; }
 .game-thumbnail img { width:100%; height:100%; object-fit:cover; transition:transform 0.2s ease; }
 .game-card:hover img { transform:scale(1.18); }
+
 .overlay { position:absolute; inset:0; background:rgba(0,0,0,0.85); display:flex; flex-direction:column; justify-content:center; align-items:center; gap:8px; opacity:0; transition:opacity 0.2s ease; text-align:center; padding:8px; }
 .game-card:hover .overlay { opacity:1; }
 .overlay button { background:black; color:white; border:var(--border); padding:6px 14px; border-radius:20px; cursor:pointer; }
-.badge { position:absolute; top:6px; right:6px; font-size:0.6rem; border:var(--border); padding:2px 6px; border-radius:10px; background:black; box-shadow:0 0 8px var(--fg); }
+
+.badge { 
+  position:absolute; 
+  top:10px; 
+  right:10px; 
+  font-size:0.65rem; 
+  border:var(--border); 
+  padding:2px 6px; 
+  border-radius:10px; 
+  background:black; 
+  box-shadow:0 0 8px var(--fg); 
+  z-index:10; /* ensure it’s on top */
+}
+
 .game-title { font-size:0.95rem; }
 .game-meta { font-size:0.75rem; color:var(--muted); }
+
 footer { max-width:1200px; margin:40px auto; padding:20px; border-top:var(--border); text-align:center; font-size:0.8rem; }
 </style>
 </head>
@@ -91,9 +117,9 @@ footer { max-width:1200px; margin:40px auto; padding:20px; border-top:var(--bord
 <footer>© 2026 The Roaring Web</footer>
 
 <script>
-// 1. GLOBAL THEME LOADER
+// 1. THEME
 const savedTheme = localStorage.getItem("theme");
-if (savedTheme) { document.documentElement.setAttribute("data-theme", savedTheme); }
+if (savedTheme) document.documentElement.setAttribute("data-theme", savedTheme);
 
 // 2. LOAD GAMES
 async function loadLatestGames() {
@@ -101,8 +127,9 @@ async function loadLatestGames() {
   const games = await res.json();
   const grid = document.querySelector(".games-grid");
   grid.innerHTML = "";
+
   games.sort((a, b) => new Date(b.added) - new Date(a.added));
-  
+
   games.slice(0, 4).forEach(game => {
     grid.innerHTML += `
       <a class="game-link" href="${game.page}">
@@ -125,10 +152,11 @@ loadLatestGames();
 function initSearch() {
   const search = document.getElementById('search');
   const cards = document.querySelectorAll('.game-card');
+  
   search.addEventListener('input', () => {
     const value = search.value.toLowerCase();
     cards.forEach(card => {
-      card.style.display = card.innerText.toLowerCase().includes(value) ? 'block' : 'none';
+      card.style.display = card.innerText.toLowerCase().includes(value) ? "grid" : "none";
     });
   });
 }
