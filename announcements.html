@@ -4,10 +4,28 @@
 <meta charset="UTF-8">
 <title>The Roaring Web - Announcements</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favicon.ico">
 
 <style>
-/* SAME UI STYLES */
-:root { --bg:#000; --fg:#fff; --muted:#ccc; --border:1px solid #fff; --radius:6px; --font:Arial,sans-serif; }
+/* THEME VARIABLES */
+:root {
+  --bg:#000; 
+  --fg:#fff; 
+  --muted:#ccc; 
+  --border:1px solid #fff; 
+  --radius:6px; 
+  --font:Arial,sans-serif; 
+  --glow:0 0 18px rgba(255,255,255,0.45);
+}
+[data-theme="neon"] {
+  --bg:#000; 
+  --fg:#00ff9d; 
+  --muted:#00c77a; 
+  --border:1px solid #00ff9d; 
+  --glow:0 0 18px rgba(0,255,157,0.7);
+}
+
+/* GLOBAL STYLES */
 * { margin:0; padding:0; box-sizing:border-box; font-family:var(--font); }
 body { background:var(--bg); color:var(--fg); }
 header { border-bottom:var(--border); }
@@ -21,7 +39,8 @@ main { max-width:1200px; margin:40px auto; padding:0 16px; }
 .section { border:var(--border); border-radius:var(--radius); padding:16px; }
 .section h2 { border-bottom:var(--border); padding-bottom:6px; margin-bottom:12px; }
 
-.announcement { margin-bottom:20px; padding-bottom:12px; border-bottom:1px solid #333; }
+/* ANNOUNCEMENTS */
+.announcement { margin-bottom:20px; padding-bottom:12px; border-bottom:1px solid var(--muted); }
 .announcement:last-child { border-bottom:none; }
 .announcement h3 { margin-bottom:6px; }
 .announcement p { color:var(--muted); }
@@ -47,7 +66,6 @@ footer { max-width:1200px; margin:40px auto; padding:20px; border-top:var(--bord
   <section class="section">
     <h2>Announcements</h2>
 
-    <!-- ANNOUNCEMENT TEMPLATE -->
     <div class="announcement">
       <h3>Site Launch — January 2026</h3>
       <p>The Roaring Web is now live with its first playable game: FNAF 1.</p>
@@ -64,6 +82,12 @@ footer { max-width:1200px; margin:40px auto; padding:20px; border-top:var(--bord
 </main>
 
 <footer>© 2026 The Roaring Web</footer>
+
+<script>
+// THEME LOADER
+const savedTheme = localStorage.getItem("theme");
+if (savedTheme) document.documentElement.setAttribute("data-theme", savedTheme);
+</script>
 
 </body>
 </html>
