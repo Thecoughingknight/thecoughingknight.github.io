@@ -111,7 +111,7 @@ class Node {
             }
 
             // Normal Drag (only if not clicking a port/circle)
-            if (!e.target.classList.contains('port') && !e.target.classList.contains('io-circle')) {
+            if (!e.target.classList.contains('port')) {
                 app.draggingNode = this;
                 const r = div.getBoundingClientRect();
                 app.dragOffset = { x: e.clientX - r.left, y: e.clientY - r.top };
