@@ -1,200 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>The Roaring Web - Home</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="favicon.ico">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Roaring Web</title>
+    <style>
+        /* RESET & BASE */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-<style>
-:root {
-  --bg:#000; --fg:#fff; --muted:#ccc; --border:1px solid #fff;
-  --radius:6px; --glow:0 0 18px rgba(255,255,255,0.45); --font:Arial,sans-serif;
-}
-[data-theme="neon"] {
-  --bg:#000; --fg:#00ff9d; --muted:#00c77a;
-  --border:1px solid #00ff9d; --glow:0 0 18px rgba(0,255,157,0.7);
-}
-* { box-sizing:border-box; margin:0; padding:0; font-family:var(--font); }
-body { background:var(--bg); color:var(--fg); }
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            text-align: center;
+        }
 
-/* Layout */
-header { border-bottom:var(--border); }
-.topbar { max-width:1200px; margin:auto; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px; }
-.logo { font-size:1.3rem; font-weight:bold; }
-.nav-links { display:flex; gap:12px; }
-.nav-links a { color:var(--fg); text-decoration:none; border:var(--border); padding:5px 12px; border-radius:20px; transition:0.2s ease; }
-.nav-links a:hover { background:var(--fg); color:var(--bg); transform:scale(1.05); }
+        /* UTILITY */
+        .hidden {
+            display: none !important;
+        }
 
-main { max-width:1200px; margin:40px auto; padding:0 16px; }
-.section { border:var(--border); border-radius:var(--radius); padding:16px; margin-bottom:40px; }
-.section h2 { border-bottom:var(--border); padding-bottom:6px; margin-bottom:12px; }
+        /* ACCESS SCREEN */
+        #access-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
 
-/* Categories */
-.categories { display:flex; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
-.categories button { border:var(--border); background:black; color:white; padding:6px 12px; border-radius:20px; cursor:pointer; transition:0.2s ease; }
-.categories button:hover, .categories button.active { background:var(--fg); color:var(--bg); }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
 
-/* Game Grid */
-.search { width:100%; margin-bottom:12px; padding:8px 12px; border-radius:20px; border:var(--border); background:black; color:white; }
-.games-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:16px; }
+        p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            color: #ccc;
+        }
 
-.game-link { text-decoration:none; color:inherit; }
-.game-card { 
-  border:var(--border); border-radius:var(--radius); padding:10px; transition:0.25s ease; 
-  position: relative; overflow:hidden; display:flex; flex-direction:column;
-}
-.game-card:hover { transform:scale(1.06); box-shadow:var(--glow); }
+        /* INPUTS & BUTTONS */
+        input[type="text"] {
+            background: #222;
+            border: 2px solid #333;
+            color: #fff;
+            padding: 15px 25px;
+            font-size: 1.2rem;
+            text-align: center;
+            outline: none;
+            width: 100%;
+            max-width: 200px;
+            border-radius: 50px; /* Rounded corners */
+            transition: border-color 0.2s;
+            margin-bottom: 15px;
+        }
 
-.game-thumbnail { width:100%; aspect-ratio:1/1; border:var(--border); border-radius:4px; overflow:hidden; margin-bottom:8px; position:relative; }
-.game-thumbnail img { width:100%; height:100%; object-fit:cover; transition:transform 0.2s ease; }
-.game-card:hover img { transform:scale(1.18); }
+        input[type="text"]:focus {
+            border-color: #fff;
+        }
 
-.overlay { position:absolute; inset:0; background:rgba(0,0,0,0.85); display:flex; flex-direction:column; justify-content:center; align-items:center; gap:8px; opacity:0; transition:opacity 0.2s ease; text-align:center; padding:8px; }
-.game-card:hover .overlay { opacity:1; }
-.overlay button { background:black; color:white; border:var(--border); padding:6px 14px; border-radius:20px; cursor:pointer; }
+        button {
+            background: #fff;
+            border: none;
+            color: #000;
+            padding: 15px 40px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 50px; /* Rounded corners */
+            transition: transform 0.1s, opacity 0.2s;
+        }
 
-.badge { position:absolute; top:10px; right:10px; font-size:0.65rem; border:var(--border); padding:2px 6px; border-radius:10px; background:black; box-shadow:0 0 8px var(--fg); z-index:10; }
+        button:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
 
-.game-title { font-size:0.95rem; }
-.game-meta { font-size:0.75rem; color:var(--muted); }
+        button:active {
+            transform: scale(0.98);
+        }
 
-footer { max-width:1200px; margin:40px auto; padding:20px; border-top:var(--border); text-align:center; font-size:0.8rem; }
-</style>
+        .error-msg {
+            color: #ff6b6b;
+            margin-top: 1rem;
+            min-height: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* MAIN SITE LAYOUT */
+        #main-site {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            margin-bottom: 4rem;
+        }
+
+        .games-container {
+            background: #111;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .placeholder-box {
+            border: 2px dashed #333;
+            border-radius: 10px;
+            padding: 3rem;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            color: #444;
+            font-size: 0.8rem;
+        }
+    </style>
 </head>
 <body>
 
-<header>
-  <div class="topbar">
-    <div class="logo">The Roaring Web</div>
-    <nav class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="games.html">Games</a>
-      <a href="announcements.html">Announcements</a>
-      <a href="settings.html">Settings</a>
-    </nav>
-  </div>
-</header>
+    <!-- LOCK SCREEN -->
+    <div id="access-screen">
+        <h1>The Roaring Web</h1>
+        <p>Enter access code</p>
+        
+        <input type="text" id="passcode" placeholder="Code" maxlength="4" autocomplete="off">
+        <button onclick="checkCode()">Enter</button>
+        
+        <div class="error-msg" id="error-msg"></div>
+    </div>
 
-<main>
+    <!-- MAIN SITE CONTENT (Hidden by default) -->
+    <div id="main-site" class="hidden">
+        <header>
+            <h1>The Roaring Web</h1>
+            <p style="color: #666;">Welcome back.</p>
+        </header>
 
-  <!-- CATEGORIES -->
-  <section class="section">
-    <h2>Categories</h2>
-    <div class="categories"></div>
-  </section>
+        <main>
+            <div class="games-container">
+                <div class="section-title">Games</div>
+                <div class="placeholder-box">
+                    No games available yet.
+                </div>
+            </div>
 
-  <!-- TOP GAMES -->
-  <section class="section">
-    <h2>Top Games</h2>
-    <div class="games-grid" id="top-games"></div>
-  </section>
+            <div class="games-container">
+                <div class="section-title">Updates</div>
+                <p style="color: #888; font-size: 0.9rem;lazy rn</p>
+            </div>
+        </main>
 
-  <!-- LATEST GAMES -->
-  <section class="section">
-    <h2>Latest Games</h2>
-    <input class="search" id="search" placeholder="Search games...">
-    <div class="games-grid" id="latest-games"></div>
-  </section>
+        <footer>
+            &copy; The Roaring Web
+        </footer>
+    </div>
 
-</main>
+    <script>
+        function checkCode() {
+            const input = document.getElementById('passcode');
+            const errorMsg = document.getElementById('error-msg');
+            const accessScreen = document.getElementById('access-screen');
+            const mainSite = document.getElementById('main-site');
+            
+            // THE REQUIRED CODE
+            if (input.value === '1225') {
+                accessScreen.classList.add('hidden');
+                mainSite.classList.remove('hidden');
+            } else {
+                errorMsg.innerText = "Incorrect code";
+                input.value = '';
+                input.focus();
+            }
+        }
 
-<footer>© 2026 The Roaring Web</footer>
-
-<script>
-// THEME
-const savedTheme = localStorage.getItem("theme");
-if (savedTheme) document.documentElement.setAttribute("data-theme", savedTheme);
-
-// LOAD GAMES AND PLAYS
-let games = [];
-let plays = {};
-
-async function loadGames() {
-  const resGames = await fetch("games.json");
-  games = await resGames.json();
-
-  const resPlays = await fetch("plays.json"); // separate JSON for play counts
-  plays = await resPlays.json();
-
-  displayCategories();
-  displayTopGames();
-  displayLatestGames();
-}
-
-// DISPLAY CATEGORIES
-function displayCategories() {
-  const container = document.querySelector(".categories");
-  const uniqueCategories = [...new Set(games.map(g => g.genre))];
-  container.innerHTML = "";
-  uniqueCategories.forEach(cat => {
-    const btn = document.createElement("button");
-    btn.textContent = cat;
-    btn.addEventListener("click", () => filterByCategory(cat, btn));
-    container.appendChild(btn);
-  });
-}
-
-// CATEGORY FILTER
-function filterByCategory(category, btn) {
-  document.querySelectorAll(".categories button").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
-  displayLatestGames(category);
-}
-
-// DISPLAY TOP GAMES
-function displayTopGames() {
-  const grid = document.getElementById("top-games");
-  grid.innerHTML = "";
-  // sort by plays
-  const sorted = [...games].sort((a,b) => (plays[b.id]||0) - (plays[a.id]||0));
-  sorted.slice(0,4).forEach(game => {
-    grid.innerHTML += renderGameCard(game);
-  });
-}
-
-// DISPLAY LATEST GAMES (optional category filter)
-function displayLatestGames(category=null) {
-  const grid = document.getElementById("latest-games");
-  grid.innerHTML = "";
-  let list = [...games].sort((a,b) => new Date(b.added) - new Date(a.added));
-  if(category) list = list.filter(g => g.genre === category);
-  list.forEach(game => {
-    grid.innerHTML += renderGameCard(game);
-  });
-  initSearch();
-}
-
-// RENDER GAME CARD
-function renderGameCard(game) {
-  return `
-    <a class="game-link" href="${game.page}">
-      <article class="game-card">
-        ${game.isNew ? `<span class="badge new">NEW</span>` : ""}
-        <div class="game-thumbnail">
-          <img src="${game.thumbnail}">
-          <div class="overlay"><p>${game.description}</p><button>▶ Play</button></div>
-        </div>
-        <div class="game-title">${game.title}</div>
-        <div class="game-meta">${game.genre} • ${game.year}</div>
-      </article>
-    </a>`;
-}
-
-// SEARCH
-function initSearch() {
-  const search = document.getElementById('search');
-  const cards = document.querySelectorAll('#latest-games .game-card');
-  search.addEventListener('input', () => {
-    const value = search.value.toLowerCase();
-    cards.forEach(card => {
-      card.style.display = card.innerText.toLowerCase().includes(value) ? "grid" : "none";
-    });
-  });
-}
-
-// INITIAL LOAD
-loadGames();
-</script>
+        // Allow pressing "Enter" key to submit
+        document.getElementById('passcode').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                checkCode();
+            }
+        });
+    </script>
 </body>
 </html>
