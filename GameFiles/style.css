@@ -1,1 +1,23 @@
+body { background: #333; color: white; margin: 0; font-family: sans-serif; overflow: hidden; }
+.toolbar { background: #222; padding: 10px; display: flex; gap: 10px; border-bottom: 1px solid #444; }
 
+#canvas { 
+    width: 100vw; height: 100vh; position: relative; 
+    background-image: radial-gradient(#444 1px, transparent 1px);
+    background-size: 20px 20px; /* Simple grid */
+}
+
+.node {
+    width: 100px; height: 60px;
+    background: #b04c4c;
+    border: 2px solid #000;
+    position: absolute;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    font-weight: bold;
+    border-radius: 4px;
+}
+.node:active { cursor: grabbing; }
