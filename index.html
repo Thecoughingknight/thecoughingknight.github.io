@@ -126,13 +126,12 @@
                 <div class="section-title">Library</div>
                 
                 <div class="games-grid">
-                    
                     <div class="game-card" onclick="launchGame('example.html')">
                         <span class="game-icon">🎮</span>
                         <div class="game-title">Example Game</div>
                         <div class="game-desc">Click to launch cloaked</div>
                     </div>
-                    </div>
+                </div>
             </div>
 
             <div class="games-container">
@@ -147,24 +146,17 @@
     </div>
 
     <script>
+        // --- Game Launch Function ---
         function launchGame(filename) {
-            // 1. Determine the path
-            // We assume your games are stored in a folder named "GameFiles" 
-            // relative to this index.html file.
-            // We convert this to a full absolute URL so it works inside about:blank.
             const gamePath = 'GameFiles/' + filename;
             const fullURL = new URL(gamePath, window.location.href).href;
 
-            // 2. Open the new blank tab
             const win = window.open();
-            
             if (!win) {
                 alert("Pop-up blocked! Please allow pop-ups for this site.");
                 return;
             }
 
-            // 3. Inject the HTML into the new tab
-            // This creates an iframe that takes up the whole screen
             const htmlContent = `
                 <!DOCTYPE html>
                 <html style="margin:0; height:100%; overflow:hidden;">
@@ -182,11 +174,32 @@
                 </html>
             `;
 
-            // 4. Write content and cloak
             win.document.open();
             win.document.write(htmlContent);
             win.document.close();
         }
+
+        // --- Inactivity Logic ---
+        (function() {
+            let timeout;
+            const INACTIVITY_LIMIT = 5000; // 5 seconds in milliseconds
+            const REDIRECTION_URL = 'https://archiveofourown.org/works/70737641/chapters/183875526'; // PLACEHOLDER: Put your link here
+
+            function resetTimer() {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    // Opens the placeholder link in a new tab
+                    window.open(REDIRECTION_URL, '_blank');
+                }, INACTIVITY_LIMIT);
+            }
+
+            // Listen for any activity
+            window.onload = resetTimer;
+            document.onmousemove = resetTimer;
+            document.onkeydown = resetTimer;
+            document.onscroll = resetTimer;
+            document.onclick = resetTimer;
+        })();
     </script>
 
 </body>
