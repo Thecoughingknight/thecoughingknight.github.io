@@ -1,6 +1,7 @@
 /**
  * ENGINE.JS
  * The Core: Handles Nodes, Wires, and Logic Simulation.
+ * Revised to allow full-body dragging of Inputs/Outputs.
  */
 
 class Node {
@@ -23,21 +24,22 @@ class Node {
         this.timerId = null;
         this.lastDelayInput = false;
         this.delayTimeoutId = null;
+        
+        // Track drag start position to distinguish Click vs Drag
+        this.startDragX = 0;
+        this.startDragY = 0;
 
         // Initialize based on Type
         if (type === 'gate') {
             if (gateType === 'timer') {
                 this.startTimer();
             } else if (gateType === 'not' || gateType === 'nand') {
-                // Initialize active (logic 1) if input is 0
                 this.outputStates[0] = true; 
             }
         } else if (type === 'input') {
-            // Inputs have 0 "inputs" but 1 user-controlled state
             this.inputStates = [];
             this.outputStates = [false];
         } else if (type === 'output') {
-            // Outputs accept 1 input to display
             this.inputStates = [false];
             this.outputStates = [];
         }
@@ -61,47 +63,41 @@ class Node {
             div.classList.add('node-special');
         }
 
-        // Content
+        // 1. Node Content
         if (this.type === 'gate') {
             div.innerText = (this.internalData ? this.gateType : (this.gateType || "GATE")).toUpperCase();
-            // Adjust height based on pins
             const height = Math.max(30, this.pins * 15 + 10);
             div.style.height = height + 'px';
         } else {
             // Input/Output Circle
             const circle = document.createElement('div');
             circle.className = 'io-circle';
-            // Click handler for Input nodes to toggle state
-            if (this.type === 'input') {
-                circle.addEventListener('mousedown', (e) => {
-                    e.stopPropagation();
-                    this.outputStates[0] = !this.outputStates[0];
-                    app.runLogic();
-                });
-            }
+            // NOTE: We do NOT add a mousedown listener here anymore.
+            // We let the event bubble up to the main div so dragging works everywhere.
             div.appendChild(circle);
         }
 
-        // Ports (Inputs)
+        // 2. Ports (Inputs)
         if (this.type !== 'input') {
             const count = this.pins;
             for (let i = 0; i < count; i++) {
-                const p = this.createPort('in', i);
-                div.appendChild(p);
+                div.appendChild(this.createPort('in', i));
             }
         }
 
-        // Ports (Outputs)
+        // 3. Ports (Outputs)
         if (this.type !== 'output') {
             const count = (this.internalData) ? this.internalData.numOut : 1;
             for (let i = 0; i < count; i++) {
-                const p = this.createPort('out', i);
-                div.appendChild(p);
+                div.appendChild(this.createPort('out', i));
             }
         }
 
-        // Dragging & Interaction
+        // 4. Interaction: Mouse Down (Start Drag)
         div.addEventListener('mousedown', (e) => {
+            // If clicking a port, let the port handle wiring
+            if (e.target.classList.contains('port')) return;
+
             // Shift+Click: Edit/Label
             if (e.shiftKey) {
                 e.stopPropagation();
@@ -110,19 +106,42 @@ class Node {
                 return;
             }
 
-            // Normal Drag (only if not clicking a port/circle)
-            if (!e.target.classList.contains('port')) {
-                app.draggingNode = this;
-                const r = div.getBoundingClientRect();
-                app.dragOffset = { x: e.clientX - r.left, y: e.clientY - r.top };
-                
-                // Bring to front
-                div.style.zIndex = 100;
-            }
+            // Start Dragging (Works on circle and body)
+            app.draggingNode = this;
+            
+            // Record position to detect "Click" vs "Drag" later
+            this.startDragX = this.x;
+            this.startDragY = this.y;
+
+            const r = div.getBoundingClientRect();
+            app.dragOffset = { x: e.clientX - r.left, y: e.clientY - r.top };
+            
+            // Bring to front
+            div.style.zIndex = 100;
         });
-        
+
+        // 5. Interaction: Mouse Up (Reset Z-Index)
         div.addEventListener('mouseup', () => {
              div.style.zIndex = 10;
+        });
+
+        // 6. Interaction: Click (Toggle Input)
+        // This fires after MouseDown -> MouseUp
+        div.addEventListener('click', (e) => {
+            if (e.target.classList.contains('port')) return;
+
+            // Calculate distance moved
+            const dist = Math.abs(this.x - this.startDragX) + Math.abs(this.y - this.startDragY);
+
+            // If moved more than 2 pixels, it was a drag, not a click. Ignore toggle.
+            if (dist > 2) return;
+
+            // If it's an Input node, Toggle it
+            if (this.type === 'input') {
+                this.outputStates[0] = !this.outputStates[0];
+                app.runLogic();
+                this.updateVisuals();
+            }
         });
 
         // Context Menu (Right Click) -> Delete
@@ -150,20 +169,17 @@ class Node {
         p.className = `port port-${type}`;
         p.dataset.index = index;
         
-        // Position calculation
         const isInput = type === 'in';
         const total = isInput ? this.inputStates.length : this.outputStates.length;
         
-        // Spread ports evenly vertically
         if (total > 1) {
-            const step = 15; // app.ROW_HEIGHT
+            const step = 15; 
             p.style.top = (10 + index * step) + 'px';
         } else {
             p.style.top = '50%';
             p.style.transform = 'translateY(-50%)';
         }
         
-        // Wiring Events
         if (type === 'out') {
             p.addEventListener('mousedown', (e) => {
                 e.stopPropagation();
@@ -185,9 +201,7 @@ class Node {
         const oldOut = [...this.outputStates];
 
         if (this.internalData) {
-            // Placeholder for Custom Chip Logic
-            // In v0.8 this is a "Black Box" (inputs don't propagate yet)
-            // or requires recursive evaluation. 
+            // Custom Chip logic placeholder
         } else if (this.type === 'gate') {
             const a = this.inputStates[0];
             const b = this.inputStates[1];
@@ -200,26 +214,22 @@ class Node {
                 case 'xor':  this.outputStates[0] = (a ? !b : b); break;
                 
                 case 'delay':
-                    // Delay Logic: Simple "Sample and Hold"
                     if (a !== this.lastDelayInput) {
                         if (this.delayTimeoutId) clearTimeout(this.delayTimeoutId);
                         this.delayTimeoutId = setTimeout(() => {
                             this.outputStates[0] = a;
                             this.lastDelayInput = a;
-                            app.runLogic(); // Trigger update
-                        }, 500); // Fixed 500ms delay
+                            app.runLogic();
+                        }, 500);
                     }
                     break;
                 
-                case 'timer':
-                    // Logic handled by setInterval, not here.
-                    break;
+                case 'timer': break; // Handled by setInterval
             }
         } else if (this.type === 'output') {
-            // Output nodes just hold state for visuals
+            // Output nodes purely visual
         }
 
-        // Return true if state changed (to trigger re-eval loop)
         return JSON.stringify(oldOut) !== JSON.stringify(this.outputStates);
     }
 
@@ -248,18 +258,15 @@ class Node {
         const fromNode = app.activeWire.fromNode;
         const fromIdx = app.activeWire.fromIdx;
 
-        // Prevent self-connection (basic check)
         if (fromNode === this) {
             app.activeWire.element.remove();
             app.activeWire = null;
             return;
         }
 
-        // Remove the "dragging" wire
         app.activeWire.element.remove();
         app.activeWire = null;
 
-        // Check if wire already exists (to avoid duplicates)
         const exists = app.wires.some(w => 
             w.fromNode === fromNode && w.fromIdx === fromIdx && 
             w.toNode === this && w.toIdx === toIndex
@@ -267,15 +274,12 @@ class Node {
 
         if (exists) return;
 
-        // Remove any existing wire connected to this *Input* pin
-        // (Inputs can only have 1 wire)
         const existingInputWireIdx = app.wires.findIndex(w => w.toNode === this && w.toIdx === toIndex);
         if (existingInputWireIdx !== -1) {
             app.wires[existingInputWireIdx].element.remove();
             app.wires.splice(existingInputWireIdx, 1);
         }
 
-        // Create permanent wire
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         path.setAttribute("class", "wire");
         document.getElementById('wire-layer').appendChild(path);
@@ -294,15 +298,12 @@ class Node {
     }
 
     getPortPos(isInput, index) {
-        // Calculate absolute position of the pin center
         const rect = this.element.getBoundingClientRect();
         const containerRect = document.getElementById('canvas-container').getBoundingClientRect();
         
-        // Find the specific port element within the node
         const selector = `.port-${isInput ? 'in' : 'out'}`;
         const ports = this.element.querySelectorAll(selector);
         
-        // Fallback safety
         if (!ports[index]) return { x: this.x, y: this.y };
 
         const portRect = ports[index].getBoundingClientRect();
@@ -313,7 +314,7 @@ class Node {
         };
     }
 
-    // --- Features: Timer ---
+    // --- Features ---
 
     startTimer() {
         if (this.timerId) clearInterval(this.timerId);
@@ -323,14 +324,12 @@ class Node {
         }, this.timerInterval);
     }
 
-    // --- Utilities ---
-
     setPosition(x, y) {
         this.x = x;
         this.y = y;
         this.element.style.left = x + 'px';
         this.element.style.top = y + 'px';
-        app.updateWireVisuals(); // Update connected wires
+        app.updateWireVisuals();
         return this;
     }
 
@@ -347,7 +346,6 @@ class Node {
     }
 
     updateVisuals() {
-        // Toggle 'active' class on IO circles
         if (this.type === 'input') {
             const circle = this.element.querySelector('.io-circle');
             if (this.outputStates[0]) circle.classList.add('active');
@@ -357,7 +355,6 @@ class Node {
             if (this.inputStates[0]) circle.classList.add('active');
             else circle.classList.remove('active');
         } else if (this.gateType === 'timer') {
-             // Blink border for timer
              this.element.style.borderColor = this.outputStates[0] ? '#ff5555' : '#000';
         }
     }
@@ -365,10 +362,7 @@ class Node {
     destroy() {
         if (this.timerId) clearInterval(this.timerId);
         if (this.delayTimeoutId) clearTimeout(this.delayTimeoutId);
-        
         this.element.remove();
-        
-        // Cleanup global lists
         app.nodes = app.nodes.filter(n => n !== this);
         app.wires = app.wires.filter(w => {
             if (w.fromNode === this || w.toNode === this) {
