@@ -2,136 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paper Minecraft Alpha</title>
+    <title>2D Craft</title>
     <style>
-        /* --- CORE STYLES --- */
-        body { 
-            margin: 0; 
-            padding: 0;
-            overflow: hidden; 
-            background: #87CEEB; /* Sky Blue */
-            font-family: 'Courier New', Courier, monospace; /* Minecraft-esque font */
-            user-select: none;
-        }
-
-        canvas { 
-            display: block; 
-            image-rendering: pixelated; /* Keeps the pixel art sharp */
-        }
-
-        /* --- HUD & UI --- */
-        #game-ui {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none; /* Allows clicks to pass through to the canvas */
-        }
-
-        .stats-panel {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.6);
-            color: #fff;
-            padding: 15px;
-            border: 3px solid #333;
-            border-radius: 4px;
-        }
-
-        /* --- HOTBAR SYSTEM --- */
-        .hotbar {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 4px;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 4px;
-            border: 4px solid #1e1e1e;
-            pointer-events: auto;
-        }
-
-        .slot {
-            width: 50px;
-            height: 50px;
-            background: #8b8b8b;
-            border: 4px solid #373737;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .slot.active {
-            border-color: #ffffff;
-            box-shadow: inset 0 0 10px rgba(255,255,255,0.5);
-        }
-
-        /* --- BLOCK TEXTURES (CSS Colors/Patterns) --- */
-        .block-icon {
-            width: 32px;
-            height: 32px;
-            box-shadow: inset -4px -4px 0 rgba(0,0,0,0.2), inset 4px 4px 0 rgba(255,255,255,0.2);
-        }
-
-        .grass { background: #5da130; }
-        .dirt  { background: #79553a; }
-        .stone { background: #616161; }
-        .coal  { background: #333333; border: 2px dotted #000; } /* Seeded with black spots */
-        .wood  { background: #4d3319; }
-        .crafting { background: #ab7d4b; border: 2px solid #4d3319; }
-        .furnace  { background: #444444; border: 2px solid #222; }
-
-        /* --- CROSSHAIR --- */
-        #crosshair {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 20px;
-            height: 20px;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-        }
-        
-        #crosshair::before, #crosshair::after {
-            content: '';
-            position: absolute;
-            background: rgba(255, 255, 255, 0.8);
-        }
-        #crosshair::before { width: 2px; height: 20px; left: 9px; }
-        #crosshair::after  { width: 20px; height: 2px; top: 9px; }
-
+        body { margin: 0; overflow: hidden; background: #87CEEB; }
+        canvas { display: block; image-rendering: pixelated; }
     </style>
 </head>
 <body>
-
     <canvas id="gameCanvas"></canvas>
-
-    <div id="game-ui">
-        
-        <div id="crosshair"></div>
-
-        <div class="stats-panel">
-            <strong>PAPER MINECRAFT v0.3</strong><br>
-            <small>Position: <span id="pos-display">0, 0</span></small><br>
-            <small>Chunks: <span id="chunk-display">0</span></small>
-        </div>
-
-        <div class="hotbar">
-            <div class="slot active"><div class="block-icon grass"></div></div>
-            <div class="slot"><div class="block-icon dirt"></div></div>
-            <div class="slot"><div class="block-icon stone"></div></div>
-            <div class="slot"><div class="block-icon coal"></div></div>
-            <div class="slot"><div class="block-icon wood"></div></div>
-            <div class="slot"><div class="block-icon crafting"></div></div>
-            <div class="slot"><div class="block-icon furnace"></div></div>
-        </div>
-
-    </div>
-
+    <script src="js/world.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/game.js"></script>
 </body>
 </html>
