@@ -1,11 +1,11 @@
 class World {
-    constructor(tileSize) {
-        this.tileSize = tileSize;
+    constructor() {
+        this.tileSize = 32;
         this.chunkSize = 16;
-        this.renderDistance = 3;
+        this.renderDistance = 4; // How many chunks to see to the left/right
         this.chunks = {};
         
-        // Block Types
+        // Block Registry
         this.blocks = {
             0: { name: "Air", color: "transparent" },
             1: { name: "Grass", color: "#5da130" },
@@ -24,64 +24,101 @@ class World {
         
         for (let x = 0; x < this.chunkSize; x++) {
             let worldX = (chunkX * this.chunkSize) + x;
-            // Simple terrain math
-            let surfaceY = Math.floor(18 + Math.sin(worldX * 0.15) * 4);
             
-            for (let y = 0; y < 50; y++) {
+            // 1. Terrain Height (Sine Wave Math)
+            // "15" is the average height. "sin * 5" makes hills go up/down by 5 blocks.
+            let surfaceY = Math.floor(15 + Math.sin(worldX * 0.1) * 5);
+            
+            for (let y = 0; y < 60; y++) {
                 let tile = 0;
-                if (y === surfaceY) tile = 1; // Grass
+                if (y < surfaceY) tile = 0; // Air
+                else if (y === surfaceY) tile = 1; // Grass
                 else if (y > surfaceY && y < surfaceY + 4) tile = 2; // Dirt
                 else if (y >= surfaceY + 4) {
-                    tile = (Math.random() > 0.9) ? 6 : 3; // Coal or Stone
+                    // 10% chance for Coal, otherwise Stone
+                    tile = (Math.random() > 0.9) ? 6 : 3; 
                 }
                 chunkData[x][y] = tile;
             }
 
-            // Simple Tree Spawning
-            if (x > 2 && x < this.chunkSize - 2 && Math.random() > 0.9) {
-                for(let h=1; h<=3; h++) chunkData[x][surfaceY-h] = 4; // Trunk
+            // 2. Tree Spawning
+            // Only spawn if not near the chunk edge (prevents cut-off trees)
+            if (x > 2 && x < this.chunkSize - 2 && Math.random() > 0.90) {
+                // Trunk (3 blocks high)
+                for(let h=1; h<=3; h++) chunkData[x][surfaceY-h] = 4;
+                
+                // Leaves (Cluster)
                 for(let lx=-1; lx<=1; lx++) {
-                    chunkData[x+lx][surfaceY-4] = 5;
-                    chunkData[x+lx][surfaceY-5] = 5;
+                    chunkData[x+lx][surfaceY-4] = 5; // Lower leaves
+                    chunkData[x+lx][surfaceY-5] = 5; // Upper leaves
                 }
-                chunkData[x][surfaceY-6] = 5;
+                chunkData[x][surfaceY-6] = 5; // Top tip
             }
         }
         return chunkData;
     }
 
+    // Load/Unload chunks based on where the player is standing
     update(playerX) {
-        let currentChunkIndex = Math.floor((playerX / this.tileSize) / this.chunkSize);
+        let currentChunk = Math.floor((playerX / this.tileSize) / this.chunkSize);
         
-        // Load new chunks
-        for (let i = currentChunkIndex - this.renderDistance; i <= currentChunkIndex + this.renderDistance; i++) {
-            if (!this.chunks[i]) this.chunks[i] = this.generateChunk(i);
+        // Load nearby
+        for (let i = currentChunk - this.renderDistance; i <= currentChunk + this.renderDistance; i++) {
+            if (!this.chunks[i]) {
+                this.chunks[i] = this.generateChunk(i);
+            }
         }
         
-        // Unload far chunks
+        // Unload far away (Garbage Collection)
         for (let key in this.chunks) {
-            if (Math.abs(key - currentChunkIndex) > this.renderDistance + 1) {
+            if (Math.abs(key - currentChunk) > this.renderDistance + 2) {
                 delete this.chunks[key];
             }
         }
-        document.getElementById('chunk-display').innerText = Object.keys(this.chunks).length;
+        
+        // Update the UI counter
+        const chunkDisplay = document.getElementById('chunk-display');
+        if(chunkDisplay) chunkDisplay.innerText = Object.keys(this.chunks).length;
     }
 
     draw(ctx, player) {
+        // CENTER THE CAMERA:
+        // We add half the screen width/height to the drawing position.
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+
         for (let chunkIdx in this.chunks) {
-            let chunkOffsetX = chunkIdx * this.chunkSize * this.tileSize;
+            let chunk = this.chunks[chunkIdx];
+            let chunkPixelX = chunkIdx * this.chunkSize * this.tileSize;
+
             for (let x = 0; x < this.chunkSize; x++) {
-                for (let y = 0; y < this.chunks[chunkIdx][x].length; y++) {
-                    let type = this.chunks[chunkIdx][x][y];
+                for (let y = 0; y < chunk[x].length; y++) {
+                    let type = chunk[x][y];
+                    
                     if (type !== 0) {
                         ctx.fillStyle = this.blocks[type].color;
-                        // The "Camera" math: World Pos - Player Pos
-                        ctx.fillRect(
-                            chunkOffsetX + (x * this.tileSize) - player.x, 
-                            (y * this.tileSize) - player.y, 
-                            this.tileSize + 0.5, 
-                            this.tileSize + 0.5
-                        );
+                        
+                        // The Magic Camera Math:
+                        // BlockPos - PlayerPos + ScreenCenter
+                        let drawX = chunkPixelX + (x * this.tileSize) - player.x + centerX;
+                        let drawY = (y * this.tileSize) - player.y + centerY;
+
+                        // Optimization: Don't draw if it's off-screen
+                        if (drawX > -50 && drawX < window.innerWidth && drawY > -50 && drawY < window.innerHeight) {
+                            ctx.fillRect(drawX, drawY, this.tileSize + 0.5, this.tileSize + 0.5);
+                            
+                            // Extra Detail: Coal specs
+                            if(type === 6) { 
+                                ctx.fillStyle = "black"; 
+                                ctx.fillRect(drawX+10, drawY+10, 5, 5); 
+                                ctx.fillRect(drawX+20, drawY+5, 5, 5); 
+                            }
+                            // Extra Detail: Furnace
+                            if(type === 8) {
+                                ctx.fillStyle = "black";
+                                ctx.fillRect(drawX+8, drawY+8, 16, 16);
+                            }
+                        }
                     }
                 }
             }
