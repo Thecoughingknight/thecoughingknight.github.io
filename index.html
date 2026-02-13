@@ -1,68 +1,51 @@
-<body>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Cloaked Launcher</title>
 
-    <!-- CLOAK LAUNCHER -->
-    <div id="cloak-launcher" style="text-align:center; padding-top: 100px;">
-        <h1 style="color:white; font-family:sans-serif;">The Roaring Web</h1>
-        <p style="color:#777; margin-top:10px;">Run cloaked to continue.</p>
-        <button onclick="runCloaked()" 
-            style="margin-top:20px; padding:12px 25px; font-size:1rem; border-radius:8px; border:none; cursor:pointer;">
-            Run Cloaked
-        </button>
-    </div>
+    <style>
+        /* PASTE CSS HERE */
+    </style>
+</head>
+<body style="text-align:center; padding-top:100px; background:black; color:white;">
 
-    <!-- HIDDEN FULL SITE -->
-    <div id="full-site" class="hidden">
-        <!-- YOUR ORIGINAL HTML STARTS HERE -->
-        <div id="main-site">
-            <header>
-                <h1>The Roaring Web</h1>
-                <p style="color: #666;">Welcome back.</p>
-            </header>
+    <h1 style="font-family:sans-serif;">The Roaring Web</h1>
+    <p style="color:#777;">Run cloaked to continue.</p>
 
-            <main>
-                <div class="games-container">
-                    <div class="section-title">Library</div>
-                    
-                    <div class="games-grid">
-                        <div class="game-card" onclick="launchGame('logicgates/index.html')">
-                            <span class="game-icon">🔌</span>
-                            <div class="game-title">Logic Gates</div>
-                            <div class="game-desc">Build and test circuits</div>
-                        </div>
+    <!-- BUTTON MATCHING YOUR CARD STYLE -->
+    <button onclick="runCloaked()" 
+        style="
+            background:#1a1a1a;
+            color:white;
+            border:1px solid #333;
+            padding:12px 25px;
+            font-size:1rem;
+            border-radius:12px;
+            cursor:pointer;
+            transition:0.3s;
+        "
+        onmouseover="this.style.background='#252525'; this.style.borderColor='#555';"
+        onmouseout="this.style.background='#1a1a1a'; this.style.borderColor='#333';"
+    >
+        Run Cloaked
+    </button>
 
-                        <div class="game-card" onclick="launchGame('paperminecraft/index.html')">
-                            <span class="game-icon">⛏️</span>
-                            <div class="game-title">Paper Minecraft</div>
-                            <div class="game-desc">2D Crafting Adventure</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="games-container">
-                    <div class="section-title">Updates</div>
-                    <p style="color: #888; font-size: 0.9rem;">System is online. Check back later for content.</p>
-                </div>
-            </main>
-
-            <footer>
-                &copy; The Roaring Web
-            </footer>
-        </div>
-        <!-- YOUR ORIGINAL HTML ENDS HERE -->
+    <!-- HIDDEN SITE CONTENT -->
+    <div id="site" style="display:none;">
+        <!-- PASTE HTML HERE -->
     </div>
 
     <script>
-        // CLOAK FUNCTION
         function runCloaked() {
             const win = window.open("about:blank", "_blank");
-
             if (!win) {
-                alert("Pop-up blocked! Please allow pop-ups for this site.");
+                alert("Pop-up blocked! Enable pop-ups.");
                 return;
             }
 
-            // Grab the full site HTML
-            const siteHTML = document.getElementById("full-site").innerHTML;
+            const css = document.querySelector("style").outerHTML;
+            const html = document.getElementById("site").innerHTML;
 
             const wrapped = `
                 <!DOCTYPE html>
@@ -70,12 +53,10 @@
                 <head>
                     <title>Classes</title>
                     <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
-                    <style>
-                        body { background:black; color:white; margin:0; font-family:sans-serif; }
-                    </style>
+                    ${css}
                 </head>
                 <body>
-                    ${siteHTML}
+                    ${html}
                 </body>
                 </html>
             `;
@@ -84,59 +65,7 @@
             win.document.write(wrapped);
             win.document.close();
         }
-
-        // --- Game Launch Function (unchanged) ---
-        function launchGame(filename) {
-            const gamePath = 'GameFiles/' + filename;
-            const fullURL = new URL(gamePath, window.location.href).href;
-
-            const win = window.open();
-            if (!win) {
-                alert("Pop-up blocked! Please allow pop-ups for this site.");
-                return;
-            }
-
-            const htmlContent = `
-                <!DOCTYPE html>
-                <html style="margin:0; height:100%; overflow:hidden;">
-                <head>
-                    <title>Classes</title> 
-                    <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
-                </head>
-                <body style="margin:0; height:100%; overflow:hidden; background-color:black;">
-                    <iframe 
-                        src="${fullURL}" 
-                        style="border:none; width:100%; height:100%; display:block;" 
-                        allowfullscreen>
-                    </iframe>
-                </body>
-                </html>
-            `;
-
-            win.document.open();
-            win.document.write(htmlContent);
-            win.document.close();
-        }
-
-        // --- Inactivity Logic (unchanged) ---
-        (function() {
-            let timeout;
-            const INACTIVITY_LIMIT = 5000; 
-            const REDIRECTION_URL = 'https://archiveofourown.org/works/70737641/chapters/183875526';
-
-            function resetTimer() {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    window.open(REDIRECTION_URL, '_blank');
-                }, INACTIVITY_LIMIT);
-            }
-
-            window.onload = resetTimer;
-            document.onmousemove = resetTimer;
-            document.onkeydown = resetTimer;
-            document.onscroll = resetTimer;
-            document.onclick = resetTimer;
-        })();
     </script>
 
 </body>
+</html>
